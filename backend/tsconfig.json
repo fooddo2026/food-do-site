@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": ["prisma.config.ts", "prisma/seed.ts", "prisma/seed_menu.ts", "prisma/**/*.ts", "test-*.ts", "test_*.js"]
+}

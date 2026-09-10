@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  role          String
+  email         String    @unique
+  phone         String    @unique
+  passwordHash  String
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  studentProfile Student?
+  managedHostels Hostel[]
+}
+
+model Student {
+  id             String    @id @default(uuid())
+  user           User      @relation(fields: [userId], references: [id])
+  userId         String    @unique
+  rollNumber     String    @unique
+  name           String
+  studentType    String    @default("HOSTELER") // "HOSTELER" or "DAY_SCHOLAR"
+  hostel         Hostel?   @relation(fields: [hostelId], references: [id])
+  hostelId       String?   
+  roomNumber     String?
+  foodPreference String
+  mess           String?
+
+  mealLogs       MealLog[]
+  leaves         Leave[]
+  mealPollResponses MealPollResponse[]
+  surplusTokens  SurplusToken[]
+
+  @@index([userId])
+  @@index([hostelId])
+  @@index([mess])
+}
+
+model Hostel {
+  id          String    @id @default(uuid())
+  name        String
+  capacity    Int
+  warden      User?     @relation(fields: [wardenId], references: [id])
+  wardenId    String?  
+
+  students    Student[]
+}
+
+model Menu {
+  id            String    @id @default(uuid())
+  serveDate     DateTime 
+  mealType      String
+  items         String
+  totalCalories Int
+  isReady       Boolean   @default(false)
+
+  mealLogs      MealLog[]
+
+  @@index([serveDate, mealType])
+}
+
+model MealLog {
+  id         String     @id @default(uuid())
+  student    Student    @relation(fields: [studentId], references: [id])
+  studentId  String    
+  menu       Menu       @relation(fields: [menuId], references: [id])
+  menuId     String    
+  entryTime  DateTime
+  exitTime   DateTime?
+  status     String
+  scannerId  String?
+  penaltyAmount Int @default(0)   
+
+  @@index([studentId, menuId])
+  @@index([entryTime])
+  @@index([status])
+}
+
+model Leave {
+  id         String      @id @default(uuid())
+  student    Student     @relation(fields: [studentId], references: [id])
+  studentId  String     
+  startDate  DateTime   
+  endDate    DateTime   
+  status     String @default("PENDING")
+
+  @@index([studentId, status])
+  @@index([startDate, endDate])
+}
+
+model MasterHosteller {
+  id             String   @id @default(uuid())
+  rollNumber     String   @unique
+  name           String
+  hostelName     String
+  roomNumber     String
+  foodPreference String
+  mess           String?
+  createdAt      DateTime @default(now())
+}
+
+model MealPollResponse {
+  id         String         @id @default(uuid())
+  student    Student        @relation(fields: [studentId], references: [id])
+  studentId  String        
+  mealType   String
+  date       DateTime      
+  preference String
+  createdAt  DateTime       @default(now())
+
+  @@unique([studentId, mealType, date])
+}
+
+model SurplusToken {
+  id        String   @id @default(uuid())
+  mealType  String
+  date      DateTime
+  price     Float
+  status    String   @default("AVAILABLE") // AVAILABLE, CLAIMED, USED
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+  claimedAt DateTime?
+  usedAt    DateTime?
+
+  @@index([mealType, date])
+  @@index([status])
+  @@index([studentId])
+}

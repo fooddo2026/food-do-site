@@ -1,0 +1,22 @@
+{
+  "name": "food-do-monorepo",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "student-portal",
+    "admin-portal"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:student-portal\" \"npm run dev:admin-portal\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:student-portal": "npm run dev --workspace=student-portal",
+    "dev:admin-portal": "npm run dev --workspace=admin-portal",
+    "start:backend": "npm start --workspace=backend",
+    "start:student-portal": "npm start --workspace=student-portal",
+    "start:admin-portal": "npm start --workspace=admin-portal"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
+}

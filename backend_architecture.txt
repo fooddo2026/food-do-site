@@ -1,0 +1,105 @@
+================================================================================
+                    FOOD-DO BACKEND SYSTEM ARCHITECTURE
+================================================================================
+
+1. OVERVIEW & TECH STACK
+------------------------
+FOOD-DO is a real-time hostel mess attendance and management platform. 
+The backend handles authentication, QR code generation/validation, database 
+persistence, real-time client communications, and simulated external alerts.
+
+Core Tech Stack:
+- Runtime & Framework: Node.js & Express (TypeScript)
+- Database & ORM: PostgreSQL with Prisma ORM
+- Websockets: Socket.io for real-time bi-directional events
+- Security: JSON Web Tokens (JWT) & bcrypt password hashing
+
+
+2. DATABASE MODELS (prisma/schema.prisma)
+----------------------------------------
+The database schema consists of six key models:
+
+- User:
+  Stores security credentials (email, phone, bcrypt passwordHash), role-based
+  permissions (STUDENT, STAFF, WARDEN, ADMIN), and active status.
+  
+- Student:
+  Holds profiles linked to Users. Contains rollNumber, student name, assigned 
+  hostel, room number, food preferences (VEG/NON-VEG), mess block, and parent 
+  contact details (parentPhone, parentEmail).
+  
+- Hostel:
+  Maintains hostel details (capacity, name) and is linked to its warden (User).
+
+- Menu:
+  Stores specific food menus served on a date for different meal times 
+  (BREAKFAST, LUNCH, DINNER, SNACK), including items list (JSON) and calories.
+
+- MealLog:
+  Logs entryTime, exitTime, status (CONSUMED, SKIPPED), scannerId, studentId, 
+  and menuId when a student goes through the mess gates.
+
+- Leave:
+  Maintains out-of-hostel leave requests (startDate, endDate, status). Used 
+  to skip meals and reduce food wastage during approved absences.
+
+
+3. KEY CONTROLLERS & DATA FLOWS
+-------------------------------
+
+A. Authentication (controllers/authController.ts)
+   - Student & Admin Registration: Validates student details against a master
+     campus registry array (MASTER_HOSTELLERS) to verify enrollment.
+   - Login: Validates credentials, verifies if the account is active, and 
+     issues a JWT signed with user metadata (id, role).
+   - Get Profile: Fetches profile data with relations (e.g. Hostel info).
+
+B. Dynamic QR & Gate Scans (controllers/mealController.ts)
+   - QR Code Generation:
+     - Generates a short-lived (30-second window) SHA256 HMAC hash.
+     - Hash components: Student User ID + Current Timestamp Epoch Window + Secret Key.
+     - Ensures that QR codes are dynamic and cannot be screen-captured/reused.
+   
+   - Gate Scan Processing (scanEntry):
+     - The terminal/scanner submits the scanned QR token, studentId, and menuId.
+     - Validation: Recalculates the HMAC hash using the current and previous 
+       time windows to verify authenticity.
+     - Entry Gates (ENTRY):
+       - Assures student is not already in the mess (no exit scan missing).
+       - Assures student has not already eaten this meal session.
+       - Creates a MealLog with the current timestamp and scanner's User ID.
+     - Exit Gates (EXIT):
+       - Finds the active entry log, calculates the elapsed eating time in minutes, 
+         and updates the log with exitTime.
+
+C. Real-Time Utilities
+   - Websockets (utils/socket.ts):
+     Upon successful scans, emits a `meal_scanned` broadcast payload with 
+     student name, roll number, scan type (ENTRY/EXIT), and time.
+   - SMS Alerts (utils/sms.ts):
+     Simulates real-time alerts sent to parents when their child enters/exits 
+     the mess, printing a visual SMS dispatch log to the console.
+
+D. Analytics (controllers/analyticsController.ts)
+   - Fetches and aggregates operational stats: active students, meals served 
+     today, active approved leaves, and estimated food wastage.
+
+
+4. REQUEST LIFE CYCLE
+--------------------
+[ Client Portal / Scanner ]
+        │ (HTTPS Request with JWT Header)
+        ▼
+[ Express Router & Middleware ]
+        │ (Parses headers, validates JWT, verifies user role permissions)
+        ▼
+[ Controllers / Business Logic ]
+        │ (Processes inputs: generates QR hash / validates scans / CRUD operations)
+        ├──────────────────────┐
+        ▼                      ▼
+[ Prisma Client ]      [ Socket.io Server ] ──────► [ Broadcast updates to UI ]
+        │                      │
+        ▼                      ▼
+[ PostgreSQL DB ]      [ SMS Notification Simulator ] ──► [ Parents notified ]
+
+================================================================================
