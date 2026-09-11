@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary: #FF6B00;
   --color-primary-hover: #E05E00;
@@ -8,7 +10,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased selection:bg-orange-500 selection:text-white;
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-orange-500 selection:text-white;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
@@ -16,5 +18,8 @@
     padding-right: env(safe-area-inset-right);
     -webkit-tap-highlight-color: transparent;
   }
-}
 
+  html.dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
+}

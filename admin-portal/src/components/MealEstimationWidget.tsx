@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { io } from 'socket.io-client';
 
 import { API_BASE_URL } from '../config';
 
@@ -92,9 +93,23 @@ export const MealEstimationWidget: React.FC = () => {
 
   useEffect(() => {
     fetchSummary();
+
+    // Listen for instant real-time student poll votes via Socket.IO
+    const socket = io(API_BASE_URL, {
+      transports: ['websocket', 'polling'],
+      query: { role: 'ADMIN' },
+    });
+
+    socket.on('meal_poll_updated', () => {
+      fetchSummary();
+    });
+
     // Refresh every 10 seconds for live kitchen staff view
     const interval = setInterval(fetchSummary, 10000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      socket.disconnect();
+    };
   }, [fetchSummary]);
 
   const totalResponses = summary ? summary.VEG + summary.NON_VEG + summary.SKIPPING : 0;

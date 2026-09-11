@@ -86,6 +86,15 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
   // Dark mode local simulation state
   const [isDark, setIsDark] = useState<boolean>(false);
 
+  // Sync dark class on document root
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
   // Notification simulation
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -1730,17 +1739,19 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                     {upcomingMeal.items.map((item, idx) => (
                       <div
                         key={idx}
-                        className={`p-3 sm:p-4 rounded-2xl border text-center transition-all hover:scale-[1.02] ${
-                          isDark ? 'bg-slate-800/60 border-white/10' : 'bg-slate-50/90 border-slate-200/80 shadow-xs'
+                        className={`p-3.5 sm:p-4 rounded-2xl border text-center transition-all hover:scale-[1.02] shadow-sm ${
+                          isDark ? 'bg-slate-800/90 border-slate-700/80 text-white' : 'bg-white border-slate-200/90 text-slate-950'
                         }`}
                       >
                         <span className="text-2xl sm:text-3xl block mb-1.5 select-none" role="img" aria-label={item}>
                           {getDishEmoji(item)}
                         </span>
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white line-clamp-2 leading-tight min-h-[2.2rem] flex items-center justify-center break-words px-0.5">
+                        <h4 className={`text-xs sm:text-sm font-black line-clamp-2 leading-tight min-h-[2.2rem] flex items-center justify-center break-words px-1 ${
+                          isDark ? 'text-white' : 'text-slate-950'
+                        }`}>
                           {item}
                         </h4>
-                        <span className="text-[10px] text-primary font-black block mt-1 uppercase tracking-wider">
+                        <span className="text-[10px] text-orange-600 font-extrabold block mt-1 uppercase tracking-wider">
                           Fresh Cooked
                         </span>
                       </div>
@@ -2201,65 +2212,71 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                   {/* Informational Sections */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Timings Card */}
-                    <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-sm'
+                    <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900 border-slate-800 shadow-xl' : 'bg-white border-slate-200/90 shadow-sm'
                       }`}>
-                      <h4 className="text-sm font-semibold mb-4 flex items-center gap-2 text-orange-500">
+                      <h4 className="text-sm font-black mb-4 flex items-center gap-2 text-orange-600">
                         ⏰ Servings Timings
                       </h4>
-                      <div className="space-y-3.5 text-xs text-gray-500 dark:text-gray-400">
-                        <div className="flex justify-between border-b border-gray-100 dark:border-white/5 pb-2">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">Breakfast (Mon - Sat)</span>
-                          <span>07:00 AM - 08:00 AM</span>
+                      <div className="space-y-3.5 text-xs">
+                        <div className={`flex justify-between border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+                          <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-950'}`}>Breakfast (Mon - Sat)</span>
+                          <span className={`font-bold ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>07:00 AM - 08:00 AM</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-white/5 pb-2">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">Breakfast (Sunday & Holidays)</span>
-                          <span>08:00 AM - 09:30 AM</span>
+                        <div className={`flex justify-between border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+                          <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-950'}`}>Breakfast (Sunday & Holidays)</span>
+                          <span className={`font-bold ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>08:00 AM - 09:30 AM</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-white/5 pb-2">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">Lunch (Mon - Sat)</span>
-                          <span>02:30 PM - 03:30 PM</span>
+                        <div className={`flex justify-between border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+                          <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-950'}`}>Lunch (Mon - Sat)</span>
+                          <span className={`font-bold ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>02:30 PM - 03:30 PM</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-white/5 pb-2">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">Lunch (Sunday & Holidays)</span>
-                          <span>01:30 PM - 03:00 PM</span>
+                        <div className={`flex justify-between border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+                          <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-950'}`}>Lunch (Sunday & Holidays)</span>
+                          <span className={`font-bold ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>01:30 PM - 03:00 PM</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-white/5 pb-2">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">Dinner (1st Year Boarders)</span>
-                          <span>08:30 PM - 09:30 PM</span>
+                        <div className={`flex justify-between border-b pb-2 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+                          <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-950'}`}>Dinner (1st Year Boarders)</span>
+                          <span className={`font-bold ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>08:30 PM - 09:30 PM</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">Dinner (Seniors/Post-Grads)</span>
-                          <span>08:45 PM - 09:45 PM</span>
+                          <span className={`font-black ${isDark ? 'text-slate-100' : 'text-slate-950'}`}>Dinner (Seniors/Post-Grads)</span>
+                          <span className={`font-bold ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>08:45 PM - 09:45 PM</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Floor Allotments Card */}
-                    <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-sm'
+                    <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900 border-slate-800 shadow-xl' : 'bg-white border-slate-200/90 shadow-sm'
                       }`}>
-                      <h4 className="text-sm font-semibold mb-4 flex items-center gap-2 text-orange-500">
+                      <h4 className="text-sm font-black mb-4 flex items-center gap-2 text-orange-600">
                         🏢 Mess Floor Allotment
                       </h4>
-                      <div className="space-y-4 text-xs text-gray-500 dark:text-gray-400">
-                        <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-150 dark:border-transparent flex items-start gap-3">
-                          <span className="text-lg">❶</span>
+                      <div className="space-y-3.5 text-xs">
+                        <div className={`p-3.5 rounded-2xl border flex items-start gap-3 ${
+                          isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <span className="text-lg text-primary font-bold shrink-0">❶</span>
                           <div>
-                            <div className="font-bold text-gray-700 dark:text-gray-200">Central Mess - 1st Floor</div>
-                            <div className="text-[10px] mt-0.5">Reserved for 3rd & 4th Year, MBA & MCA Boarders only.</div>
+                            <div className={`font-black text-xs ${isDark ? 'text-white' : 'text-slate-950'}`}>Central Mess - 1st Floor</div>
+                            <div className={`text-[11px] font-semibold mt-0.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Reserved for 3rd & 4th Year, MBA & MCA Boarders only.</div>
                           </div>
                         </div>
-                        <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-150 dark:border-transparent flex items-start gap-3">
-                          <span className="text-lg">❷</span>
+                        <div className={`p-3.5 rounded-2xl border flex items-start gap-3 ${
+                          isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <span className="text-lg text-primary font-bold shrink-0">❷</span>
                           <div>
-                            <div className="font-bold text-gray-700 dark:text-gray-200">Central Mess - 2nd Floor</div>
-                            <div className="text-[10px] mt-0.5">Reserved for 2nd Year Boarders only.</div>
+                            <div className={`font-black text-xs ${isDark ? 'text-white' : 'text-slate-950'}`}>Central Mess - 2nd Floor</div>
+                            <div className={`text-[11px] font-semibold mt-0.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Reserved for 2nd Year Boarders only.</div>
                           </div>
                         </div>
-                        <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-150 dark:border-transparent flex items-start gap-3">
-                          <span className="text-lg">❸</span>
+                        <div className={`p-3.5 rounded-2xl border flex items-start gap-3 ${
+                          isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'
+                        }`}>
+                          <span className="text-lg text-primary font-bold shrink-0">❸</span>
                           <div>
-                            <div className="font-bold text-gray-700 dark:text-gray-200">Central Mess - 3rd Floor</div>
-                            <div className="text-[10px] mt-0.5">Reserved for 1st Year Boarders only.</div>
+                            <div className={`font-black text-xs ${isDark ? 'text-white' : 'text-slate-950'}`}>Central Mess - 3rd Floor</div>
+                            <div className={`text-[11px] font-semibold mt-0.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Reserved for 1st Year Boarders only.</div>
                           </div>
                         </div>
                       </div>

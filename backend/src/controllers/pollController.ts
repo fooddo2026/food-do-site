@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { prisma } from '../utils/db';
 import { AuthRequest } from '../middleware/authMiddleware';
+import { getIO } from '../utils/socket';
 
 // Helper to determine the active meal window
 // Breakfast: 7:30 AM. Window: 10:00 PM previous night (1320 mins) to 7:30 AM (450 mins)
@@ -118,6 +119,20 @@ export const submitPoll = async (req: AuthRequest, res: Response) => {
         preference: preference,
       },
     });
+
+    // Emit real-time poll update to Admin & Kitchen dashboard via Socket.IO
+    try {
+      const io = getIO();
+      io.emit('meal_poll_updated', {
+        mealType,
+        date: utcDate,
+        preference,
+        studentName: student.name,
+        rollNumber: student.rollNumber,
+      });
+    } catch (socketErr) {
+      console.warn('Socket emit error in submitPoll:', socketErr);
+    }
 
     res.json({ message: 'Poll submitted successfully', pollResponse });
   } catch (error: any) {

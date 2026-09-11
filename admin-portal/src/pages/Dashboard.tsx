@@ -28,6 +28,7 @@ const Dashboard: React.FC = () => {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [isOffline, setIsOffline] = useState(false);
   const [feedbackStats, setFeedbackStats] = useState<{ overallAverage: number; totalReviews: number; topMeal: string } | null>(null);
+  const [liveAlert, setLiveAlert] = useState<{ text: string; type: 'poll' | 'feedback' | 'scan' } | null>(null);
 
   // Manual Override State
   const [overrideRoll, setOverrideRoll] = useState('');
@@ -131,6 +132,7 @@ const Dashboard: React.FC = () => {
 
     // Listen to real-time scanning events via Socket.io
     const socket = io(API_BASE_URL, {
+      transports: ['websocket', 'polling'],
       query: { role: userRole }
     });
 
@@ -144,9 +146,22 @@ const Dashboard: React.FC = () => {
       };
       setActivities((prev) => [newLog, ...prev.slice(0, 7)]);
       setStats((prev) => prev ? { ...prev, mealsServedToday: prev.mealsServedToday + 1 } : null);
+      setLiveAlert({
+        text: `🎟️ Live Scan: ${eventData.rollNumber || eventData.studentName} checked in for ${eventData.mealType || 'Meal'}`,
+        type: 'scan'
+      });
+      setTimeout(() => setLiveAlert(null), 4000);
     };
 
     socket.on('meal_scanned', handleNewScanEvent);
+
+    socket.on('meal_poll_updated', (eventData: any) => {
+      setLiveAlert({
+        text: `📢 Student Poll Update: ${eventData.studentName || eventData.rollNumber || 'Student'} voted "${eventData.preference}" for ${eventData.mealType}!`,
+        type: 'poll'
+      });
+      setTimeout(() => setLiveAlert(null), 5000);
+    });
 
     const fetchFeedbackSummary = async () => {
       try {
@@ -176,8 +191,13 @@ const Dashboard: React.FC = () => {
     };
 
     fetchFeedbackSummary();
-    socket.on('new_meal_feedback', () => {
+    socket.on('new_meal_feedback', (eventData: any) => {
       fetchFeedbackSummary();
+      setLiveAlert({
+        text: `⭐ Live Meal Review: ${eventData.rating}★ for ${eventData.mealType} from ${eventData.studentName || 'Student'}!`,
+        type: 'feedback'
+      });
+      setTimeout(() => setLiveAlert(null), 5000);
     });
 
     // Sync scan events across browser tabs via localStorage
@@ -238,6 +258,19 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Real-time Push Alert Banner */}
+      {liveAlert && (
+        <div className="mb-6 p-4 rounded-2xl bg-primary text-white font-extrabold text-xs sm:text-sm flex items-center justify-between shadow-lg shadow-orange-500/25 animate-bounce">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+            <span>{liveAlert.text}</span>
+          </div>
+          <span className="text-[10px] uppercase tracking-widest bg-white/20 px-2 py-0.5 rounded-full">
+            REAL-TIME
+          </span>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center items-center py-32 text-gray-500">
