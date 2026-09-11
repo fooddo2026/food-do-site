@@ -56,39 +56,7 @@ async function main() {
   });
   console.log(`👑 Created Admin User: ${adminUser.email}`);
 
-  const admin1User = await prisma.user.create({
-    data: {
-      email: 'admin1@fooddo.com',
-      phone: '9999999995',
-      passwordHash: adminHash,
-      role: 'ADMIN',
-    },
-  });
-  console.log(`👑 Created Admin User: ${admin1User.email}`);
-
-  const admin2User = await prisma.user.create({
-    data: {
-      email: 'admin2@fooddo.com',
-      phone: '9999999996',
-      passwordHash: adminHash,
-      role: 'ADMIN',
-    },
-  });
-  console.log(`👑 Created Admin User: ${admin2User.email}`);
-
-  // 4. Create Staff User
-  const staffHash = await bcrypt.hash('staff123', 10);
-  const staffUser = await prisma.user.create({
-    data: {
-      email: 'staff@fooddo.com',
-      phone: '9999999992',
-      passwordHash: staffHash,
-      role: 'STAFF',
-    },
-  });
-  console.log(`🧑‍🍳 Created Mess Staff User: ${staffUser.email}`);
-
-  // 5. Create Student 1 (John Doe - Veg)
+  // 4. Create Student 1 (John Doe - Veg)
   const student1Hash = await bcrypt.hash('student123', 10);
   const student1User = await prisma.user.create({
     data: {
@@ -111,30 +79,6 @@ async function main() {
     },
   });
   console.log(`🎓 Created Student (Hosteler 1): ${student1.name} (Roll: ${student1.rollNumber})`);
-
-  // 6. Create Student 2 (Amit Patel - Non-Veg)
-  const student2Hash = await bcrypt.hash('student123', 10);
-  const student2User = await prisma.user.create({
-    data: {
-      email: 'student2@fooddo.com',
-      phone: '9999999994',
-      passwordHash: student2Hash,
-      role: 'STUDENT',
-    },
-  });
-
-  const student2 = await prisma.student.create({
-    data: {
-      userId: student2User.id,
-      rollNumber: 'ME20261108',
-      name: 'Amit Patel',
-      hostelId: hostel.id,
-      roomNumber: '212',
-      foodPreference: 'Non-Veg',
-      mess: 'Main 1st Floor',
-    },
-  });
-  console.log(`🎓 Created Student (Hosteler 2): ${student2.name} (Roll: ${student2.rollNumber})`);
 
   // 7. Create Today's and Next 6 Days' Menu Schedule (GITA Official Weekly Cycle)
   const weeklyCycle: Record<string, { breakfast: string, lunch: string, dinner: string }> = {
@@ -191,11 +135,6 @@ async function main() {
   // 8. Seed Master Hostellers
   const masterHostellers = [
     { rollNumber: 'CS20261024', name: 'John Doe', hostelName: 'BH 01', roomNumber: '104', foodPreference: 'Veg', mess: 'South Block Mess' },
-    { rollNumber: 'ME20261108', name: 'Amit Patel', hostelName: 'BH 01', roomNumber: '212', foodPreference: 'Non-Veg', mess: 'Main 1st Floor' },
-    { rollNumber: 'EE20263045', name: 'Vikram Singh', hostelName: 'BH 03', roomNumber: '302', foodPreference: 'Veg', mess: 'Main 2nd Floor' },
-    { rollNumber: 'EC20264012', name: 'Ananya Rao', hostelName: 'GH 02', roomNumber: '101', foodPreference: 'Veg', mess: 'Girl\'s Campus' },
-    { rollNumber: 'IT20262056', name: 'Kabir Mehta', hostelName: 'BH 08', roomNumber: '405', foodPreference: 'Non-Veg', mess: 'Main 3rd Floor' },
-    { rollNumber: 'CH20266078', name: 'Priya Sharma', hostelName: 'GH 05', roomNumber: '204', foodPreference: 'Veg', mess: 'Girl\'s Campus' }
   ];
 
   for (const mh of masterHostellers) {
