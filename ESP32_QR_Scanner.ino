@@ -43,14 +43,15 @@
  ====================================================================================================
 */
 
-#include "soc/rtc_cntl_reg.h" // Disables Brownout detector during camera/wifi bursts
 #include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h" // Disables Brownout detector during camera/wifi bursts
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
 #include <ESP32QRCodeReader.h>
-#include <HTTPClient.h>
-#include <LiquidCrystal_I2C.h>
-#include <WiFi.h>
-#include <Wire.h>
 
 // ======================== 👇 CONFIGURATION SETTINGS 👇
 // ========================
@@ -307,9 +308,12 @@ void loop() {
 // -----------------------------------------------------------------------------
 void verifyQR(String qrData) {
   if (WiFi.status() == WL_CONNECTED) {
+    WiFiClientSecure client;
+    client.setInsecure(); // Required for HTTPS connection to Render without hardcoded SSL certs
+
     HTTPClient http;
-    http.begin(API_URL);
-    http.setTimeout(4000); // 4 second timeout for fast response
+    http.begin(client, API_URL);
+    http.setTimeout(8000); // 8 second timeout for cloud API response
     http.addHeader("Content-Type", "application/json");
     http.addHeader("x-api-key", API_KEY);
 
@@ -488,9 +492,12 @@ void syncOfflineQueue() {
   String syncUrl = String(API_URL);
   syncUrl.replace("hardware-scan", "hardware-sync");
 
+  WiFiClientSecure client;
+  client.setInsecure();
+
   HTTPClient http;
-  http.begin(syncUrl);
-  http.setTimeout(6000);
+  http.begin(client, syncUrl);
+  http.setTimeout(8000);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("x-api-key", API_KEY);
 
