@@ -159,6 +159,7 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
 
   // QR Static Pass Token
   const [qrSignature, setQrSignature] = useState('');
+  void qrSignature;
 
   // Form states
   const [startDate, setStartDate] = useState('');
@@ -194,6 +195,22 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
   const [pollSubmitting, setPollSubmitting] = useState(false);
   const [pollDone, setPollDone] = useState(false); // shows brief ✔ confirmation before hiding
   
+  // ── Reactive Meal Poll Preference for QR Pass ────────────────────
+  const [todayPollPref, setTodayPollPref] = useState<'VEG' | 'NON-VEG' | null>(() => {
+    try {
+      const todayYMD = new Date().toISOString().split('T')[0];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('food_do_poll_answered_') && key.includes(todayYMD)) {
+          const val = localStorage.getItem(key);
+          if (val === 'NON_VEG') return 'NON-VEG';
+          if (val === 'VEG') return 'VEG';
+        }
+      }
+    } catch (_) {}
+    return null;
+  });
+
   // ── Food Ready Overlay State ──────────────────────────────────────
   const [foodReadyOverlay, setFoodReadyOverlay] = useState<string | null>(null);
 
@@ -323,6 +340,8 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
     // Mark as answered in localStorage (admin widget reads this key pattern)
     const localKey = getPollLocalKey(mealType, date);
     localStorage.setItem(localKey, preference);
+    if (preference === 'NON_VEG') setTodayPollPref('NON-VEG');
+    else if (preference === 'VEG') setTodayPollPref('VEG');
     setPollSubmitting(false);
     setPollDone(true);
     setTimeout(() => {
@@ -1036,9 +1055,12 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
     }, 600);
   };
 
-  // Optimized Micro-Payload for ESP32-CAM Fast Scanning (< 1 second)
-  const firstName = (studentName || initialUser?.name || 'Student').split(' ')[0];
-  const qrToken = `${studentId || initialUser?.id || ''}|${firstName}|${foodPreference.toUpperCase()}|${hostelName || 'H1'}|${qrSignature}`;
+  // Ultra-Lightweight Micro-Payload for Instant ESP32 Scanning with Minimal Dots
+  const effectiveFoodPref = todayPollPref || (foodPreference.toUpperCase().includes('NON') ? 'NON-VEG' : 'VEG');
+  const firstName = (studentName || initialUser?.name || 'Student').trim().split(/\s+/)[0].toUpperCase();
+  const shortHostel = (hostelName || initialUser?.hostel || 'BH 02').replace(/\s+/g, ' ').trim().toUpperCase();
+  const primaryId = (rollNumber || studentId || initialUser?.rollNumber || initialUser?.id || 'STUDENT').trim();
+  const qrToken = `${primaryId}|${firstName}|${effectiveFoodPref}|${shortHostel}`;
 
   // Dynamic Meal Card Status Helper based on current time & student scanning log
   const getMealCardState = (mealType: 'BREAKFAST' | 'LUNCH' | 'DINNER') => {
@@ -1818,11 +1840,11 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <h4 className="text-xs font-black truncate uppercase text-primary leading-none">{(studentName || 'AMAN KUMAR SINGH').toUpperCase()}</h4>
-                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider ${foodPreference.toLowerCase() === 'veg'
+                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider ${effectiveFoodPref === 'VEG'
                           ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
                           : 'bg-red-500/20 text-red-800 dark:text-red-300 border border-red-500/30'
                         }`}>
-                        {foodPreference}
+                        {effectiveFoodPref}
                       </span>
                     </div>
                     <p className={`text-[10px] font-extrabold uppercase tracking-wider mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
@@ -1846,7 +1868,7 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                       size={280}
                       bgColor="#ffffff"
                       fgColor="#0f172a"
-                      level="Q"
+                      level="L"
                       includeMargin={false}
                       className={`w-60 h-60 sm:w-72 sm:h-72 mx-auto transition-all ${isPassPaused() ? 'blur-md opacity-30 select-none' : ''}`}
                     />
@@ -1865,7 +1887,16 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                     )}
                   </div>
 
-                  <p className={`text-[11px] font-bold mt-3 text-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold border border-emerald-500/20">
+                      ⚡ Fast Micro-QR
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono text-[10px] font-black">
+                      {qrToken}
+                    </span>
+                  </div>
+
+                  <p className={`text-[11px] font-bold mt-2 text-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                     📱 Hold phone 10-15cm from scanner with high brightness
                   </p>
                 </div>

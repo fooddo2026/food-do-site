@@ -526,8 +526,14 @@ export const hardwareScanEntry = async (req: Request, res: Response): Promise<an
       return res.status(400).json({ error: 'Invalid QR code signature' });
     }
 
-    const student = await prisma.student.findUnique({
-      where: { userId: studentId },
+    const student = await prisma.student.findFirst({
+      where: {
+        OR: [
+          { userId: studentId },
+          { rollNumber: studentId },
+          { id: studentId }
+        ]
+      },
       include: { user: true }
     });
 
@@ -551,6 +557,7 @@ export const hardwareScanEntry = async (req: Request, res: Response): Promise<an
     let log;
     let smsAlert = '';
     let durationMins = 0;
+    let pollResponse: any = null;
 
     if (gateType === 'ENTRY') {
       const menu = await prisma.menu.findFirst({
@@ -583,7 +590,7 @@ export const hardwareScanEntry = async (req: Request, res: Response): Promise<an
 
       // Check Penalty
       let penalty = 0;
-      const pollResponse = await prisma.mealPollResponse.findFirst({
+      pollResponse = await prisma.mealPollResponse.findFirst({
         where: {
           studentId: student.id,
           mealType: menu.mealType,
@@ -646,10 +653,14 @@ export const hardwareScanEntry = async (req: Request, res: Response): Promise<an
       console.warn('Socket broadcast failed:', socketErr);
     }
 
+    const effectivePref = (pollResponse && pollResponse.preference)
+      ? (pollResponse.preference === 'NON_VEG' ? 'Non-Veg' : pollResponse.preference === 'VEG' ? 'Veg' : 'Skipped')
+      : student.foodPreference;
+
     return res.json({
       success: true,
       studentName: student.name,
-      foodPreference: student.foodPreference,
+      foodPreference: effectivePref,
       message: `${gateType} successful`
     });
 
@@ -694,10 +705,18 @@ export const hardwareSyncOffline = async (req: Request, res: Response): Promise<
     for (const qrData of scans) {
       if (qrData.includes('|')) {
         const parts = qrData.split('|');
-        const studentId = parts[0];
+        const studentId = parts[0]?.trim();
         
         if (studentId && menu) {
-          const student = await prisma.student.findUnique({ where: { userId: studentId } });
+          const student = await prisma.student.findFirst({
+            where: {
+              OR: [
+                { userId: studentId },
+                { rollNumber: studentId },
+                { id: studentId }
+              ]
+            }
+          });
           if (student) {
             // Check if already logged
             const existingLog = await prisma.mealLog.findFirst({

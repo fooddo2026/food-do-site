@@ -358,7 +358,7 @@ void verifyQR(String qrData) {
             (spaceIdx != -1) ? fullName.substring(0, spaceIdx) : fullName;
 
         String foodPref = resDoc["foodPreference"].as<String>();
-        if (foodPref == "Non-Veg" || foodPref == "NON_VEG")
+        if (foodPref == "Non-Veg" || foodPref == "NON_VEG" || foodPref == "NON-VEG")
           foodPref = "N-VEG";
         else if (foodPref == "Veg" || foodPref == "VEG")
           foodPref = "VEG";
@@ -447,7 +447,7 @@ void verifyQR(String qrData) {
           String foodPref = (thirdPipe != -1)
                                 ? qrData.substring(secondPipe + 1, thirdPipe)
                                 : qrData.substring(secondPipe + 1);
-          if (foodPref == "Non-Veg" || foodPref == "NON_VEG")
+          if (foodPref == "Non-Veg" || foodPref == "NON_VEG" || foodPref == "NON-VEG")
             foodPref = "N-VEG";
           else if (foodPref == "Veg" || foodPref == "VEG")
             foodPref = "VEG";
