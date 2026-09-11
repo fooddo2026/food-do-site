@@ -1793,8 +1793,8 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
           {/* TAB 2: MY QR PASS                       */}
           {/* ======================================= */}
           {activeTab === 'qr' && (
-            <div className="max-w-md mx-auto animate-fade-in">
-              <div className={`p-4 sm:p-8 rounded-2xl sm:rounded-3xl border text-center flex flex-col items-center gap-4 sm:gap-6 relative overflow-hidden ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-sm'
+            <div className="max-w-lg mx-auto animate-fade-in px-1">
+              <div className={`p-5 sm:p-8 rounded-3xl border text-center flex flex-col items-center gap-4 sm:gap-6 relative overflow-hidden ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-md'
                 }`}>
                 {/* Top strip */}
                 <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-orange-650 to-amber-500" />
@@ -1838,17 +1838,17 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                 </div>
 
                 {/* QR box with scanning laser beam */}
-                <div className={`p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border relative shadow-lg max-w-xs w-full ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-200/80'
+                <div className={`p-4 sm:p-6 rounded-3xl border relative shadow-xl max-w-sm sm:max-w-md w-full ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200/90'
                   }`}>
-                  <div className="p-3 bg-white rounded-xl sm:rounded-2xl relative shadow-md overflow-hidden flex items-center justify-center">
+                  <div className="p-4 sm:p-6 bg-white rounded-2xl sm:rounded-3xl relative shadow-md overflow-hidden flex flex-col items-center justify-center">
                     <QRCodeSVG
                       value={qrToken}
-                      size={200}
+                      size={280}
                       bgColor="#ffffff"
                       fgColor="#0f172a"
-                      level="M"
-                      includeMargin={true}
-                      className={`w-44 h-44 sm:w-52 sm:h-52 mx-auto transition-all ${isPassPaused() ? 'blur-md opacity-30 select-none' : ''}`}
+                      level="Q"
+                      includeMargin={false}
+                      className={`w-60 h-60 sm:w-72 sm:h-72 mx-auto transition-all ${isPassPaused() ? 'blur-md opacity-30 select-none' : ''}`}
                     />
 
                     {isPassPaused() ? (
@@ -1865,6 +1865,9 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                     )}
                   </div>
 
+                  <p className={`text-[11px] font-bold mt-3 text-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    📱 Hold phone 10-15cm from scanner with high brightness
+                  </p>
                 </div>
               </div>
             </div>
