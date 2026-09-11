@@ -11,6 +11,7 @@ import mealRoutes from './routes/mealRoutes';
 import leaveRoutes from './routes/leaveRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import pollRoutes from './routes/pollRoutes';
+import feedbackRoutes from './routes/feedbackRoutes';
 import { initCronJobs } from './utils/cronScheduler';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -32,6 +33,7 @@ app.use('/api/meals', mealRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/dashboard', analyticsRoutes);
 app.use('/api/polls', pollRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'healthy', message: 'FOOD-DO API is running' });

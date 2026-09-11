@@ -56,11 +56,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userRole, onClose }) => {
             <Link to="/menus" className={linkClass('/menus')} onClick={handleLinkClick}>
               Menu Management
             </Link>
+            <Link to="/feedback" className={linkClass('/feedback')} onClick={handleLinkClick}>
+              Meal Feedback
+            </Link>
           </>
         ) : userRole?.toUpperCase() === 'STAFF' ? (
           <>
             <Link to="/menus" className={linkClass('/menus')} onClick={handleLinkClick}>
               View Menu
+            </Link>
+            <Link to="/feedback" className={linkClass('/feedback')} onClick={handleLinkClick}>
+              Meal Feedback
             </Link>
           </>
         ) : (

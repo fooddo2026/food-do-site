@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { Link } from 'react-router-dom';
 import { MealEstimationWidget } from '../components/MealEstimationWidget';
 
 import { API_BASE_URL } from '../config';
@@ -26,7 +27,8 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [isOffline, setIsOffline] = useState(false);
-  
+  const [feedbackStats, setFeedbackStats] = useState<{ overallAverage: number; totalReviews: number; topMeal: string } | null>(null);
+
   // Manual Override State
   const [overrideRoll, setOverrideRoll] = useState('');
   const [overrideGate, setOverrideGate] = useState<'ENTRY' | 'EXIT'>('ENTRY');
@@ -145,6 +147,38 @@ const Dashboard: React.FC = () => {
     };
 
     socket.on('meal_scanned', handleNewScanEvent);
+
+    const fetchFeedbackSummary = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const today = new Date().toISOString().split('T')[0];
+        const res = await fetch(`${API_BASE_URL}/api/feedback/summary?date=${today}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const d = await res.json();
+          let topMeal = 'N/A';
+          let topAvg = 0;
+          const statsMap = d.summary?.mealStats || {};
+          Object.keys(statsMap).forEach(k => {
+            if (statsMap[k].avg > topAvg) {
+              topAvg = statsMap[k].avg;
+              topMeal = k;
+            }
+          });
+          setFeedbackStats({
+            overallAverage: d.summary?.overallAverage || 0,
+            totalReviews: d.summary?.totalReviews || 0,
+            topMeal: topMeal !== 'N/A' ? topMeal : 'Pending'
+          });
+        }
+      } catch (_) {}
+    };
+
+    fetchFeedbackSummary();
+    socket.on('new_meal_feedback', () => {
+      fetchFeedbackSummary();
+    });
 
     // Sync scan events across browser tabs via localStorage
     let lastScanTs = 0;
@@ -325,6 +359,34 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
+          </div>
+
+          {/* Live Meal Feedback Banner */}
+          <div className="bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-white p-5 rounded-2xl border border-orange-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/20">
+                ⭐
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-extrabold text-gray-900">Student Meal Dining Feedback</h4>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700">
+                    Live
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Today's Score: <strong className="text-gray-900">{feedbackStats?.overallAverage ? `${feedbackStats.overallAverage.toFixed(1)} / 5.0` : 'No ratings yet'}</strong> ({feedbackStats?.totalReviews || 0} reviews today) • Top: <span className="capitalize font-bold text-primary">{feedbackStats?.topMeal?.toLowerCase()}</span>
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to="/feedback"
+              className="px-4 py-2.5 rounded-xl bg-white hover:bg-orange-50 border border-orange-200 text-primary font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs shrink-0"
+            >
+              <span>View All Reviews & Analytics</span>
+              <span>➔</span>
+            </Link>
           </div>
           
           {/* Manual Scanner Override Widget */}

@@ -40,6 +40,7 @@ model Student {
   leaves         Leave[]
   mealPollResponses MealPollResponse[]
   surplusTokens  SurplusToken[]
+  feedbacks      MealFeedback[]
 
   @@index([userId])
   @@index([hostelId])
@@ -136,4 +137,20 @@ model SurplusToken {
   @@index([mealType, date])
   @@index([status])
   @@index([studentId])
+}
+
+model MealFeedback {
+  id         String   @id @default(uuid())
+  student    Student  @relation(fields: [studentId], references: [id])
+  studentId  String
+  mealType   String   // "BREAKFAST", "LUNCH", "SNACKS", "DINNER"
+  date       DateTime // Normalized UTC date
+  rating     Int      // 1 to 5
+  tags       String?  // Comma-separated or JSON list of tags
+  comment    String?  // Feedback notes
+  createdAt  DateTime @default(now())
+
+  @@unique([studentId, mealType, date])
+  @@index([date, mealType])
+  @@index([rating])
 }

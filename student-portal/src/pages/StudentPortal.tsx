@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { QRCodeSVG } from 'qrcode.react';
 import SurplusTokens from '../components/SurplusTokens';
+import MealFeedbackSection from '../components/MealFeedbackSection';
 import { API_BASE_URL } from '../config';
 import {
   LayoutDashboard, QrCode, History, Utensils, CalendarDays,
@@ -1420,6 +1421,10 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
               <Utensils className="w-5 h-5" />
               Today's Menu
             </button>
+            <button onClick={() => setActiveTab('feedback')} className={navItemClass('feedback')}>
+              <Star className="w-5 h-5" />
+              Meal Feedback
+            </button>
             
             <button onClick={() => setActiveTab('profile')} className={navItemClass('profile')}>
               <User className="w-5 h-5" />
@@ -1574,6 +1579,15 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
           >
             <Utensils className="w-4 h-4" />
             <span>Menu</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('feedback')}
+            className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all cursor-pointer ${activeTab === 'feedback' ? 'text-primary' : 'text-gray-400'
+              }`}
+          >
+            <Star className="w-4 h-4" />
+            <span>Feedback</span>
           </button>
 
           <button
@@ -2808,6 +2822,13 @@ const StudentPortal: React.FC<StudentPortalProps> = ({ onLogout }) => {
                 )}
               </div>
             </div>
+          )}
+
+          {/* ======================================= */}
+          {/* TAB: MEAL FEEDBACK                     */}
+          {/* ======================================= */}
+          {activeTab === 'feedback' && (
+            <MealFeedbackSection isDark={isDark} todayMeals={todayMeals} />
           )}
 
           {/* ======================================= */}

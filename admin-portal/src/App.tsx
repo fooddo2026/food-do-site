@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import Menus from './pages/Menus';
 import Leaves from './pages/Leaves';
+import Feedback from './pages/Feedback';
 
 // Authentication Deck Pages
 import Welcome from './pages/auth/Welcome';
@@ -156,6 +157,7 @@ function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/menus" element={<Menus />} />
               <Route path="/leaves" element={<Leaves />} />
+              <Route path="/feedback" element={<Feedback />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
