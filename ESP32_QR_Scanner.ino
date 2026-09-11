@@ -58,11 +58,8 @@
 const char *WIFI_SSID = "vivo Y300 5G";
 const char *WIFI_PASSWORD = "shaurya123";
 
-// 2. Backend Server Endpoint:
-// Note: Replace with your PC/Laptop's IPv4 address on the same Wi-Fi/Hotspot
-// network. Example: If PC is on 20.3.2.96 or Hotspot gives 192.168.43.x, update
-// below:
-const char *API_URL = "http://10.21.208.191:3000/api/meals/hardware-scan";
+// 2. Backend Server Endpoint (Cloud Render Production URL):
+const char *API_URL = "https://food-do-backend.onrender.com/api/meals/hardware-scan";
 const char *API_KEY = "food-do-esp32-secret";
 
 // 3. Hardware Pins
